@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HydroTrack 💧</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#00b4d8">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #e6f7ff;
+    padding: 20px;
+  }
+
+  h1 { color: #0077b6; }
+
+  .counter {
+    font-size: 40px;
+    margin: 20px 0;
+  }
+
+  button {
+    padding: 15px 25px;
+    font-size: 18px;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #00b4d8;
+    color: white;
+  }
+
+  .progress {
+    width: 80%;
+    height: 25px;
+    background: #ccc;
+    margin: 20px auto;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #00b4d8;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>HydroTrack 💧</h1>
+
+<div class="counter" id="counter">0 / 8 glasses</div>
+
+<button onclick="addWater()">➕ Add Glass</button>
+<button onclick="resetWater()">🔄 Reset</button>
+
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<script>
+let goal = 8;
+let count = localStorage.getItem("waterCount") || 0;
+
+function updateUI() {
+  document.getElementById("counter").innerText = count + " / " + goal + " glasses";
+  let percent = (count / goal) * 100;
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+function addWater() {
+  count++;
+  localStorage.setItem("waterCount", count);
+  updateUI();
+}
+
+function resetWater() {
+  count = 0;
+  localStorage.setItem("waterCount", count);
+  updateUI();
+}
+
+// Reminder every 1 hour
+setInterval(() => {
+  alert("💧 Time to drink water!");
+}, 3600000);
+
+// --- INSTALL FEATURE ---
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  let installBtn = document.createElement("button");
+  installBtn.innerText = "📲 Install App";
+  document.body.appendChild(installBtn);
+
+  installBtn.addEventListener("click", () => {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+    });
+  });
+});
+
+// --- FAKE MANIFEST (INLINE) ---
+const manifest = {
+  name: "HydroTrack",
+  short_name: "HydroTrack",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#e6f7ff",
+  theme_color: "#00b4d8"
+};
+
+const stringManifest = JSON.stringify(manifest);
+const blob = new Blob([stringManifest], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = manifestURL;
+document.head.appendChild(link);
+
+updateUI();
+</script>
+
+</body>
+</html>
